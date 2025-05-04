@@ -7,7 +7,19 @@ export class SocketManager {
   }
 
   addSocket(ws) {
-    const newSocket = PlayerSocket(ws);
+    const newSocket = new PlayerSocket(ws);
     this.sockets.set(ws, newSocket);
+  }
+
+  getSocket(ws) {
+    const socket = this.sockets.get(ws);
+    return socket;
+  }
+
+  delete(ws) {
+    if (this.sockets.has(ws)) {
+      this.sockets.get(ws).clean();
+      this.sockets.delete(ws);
+    }
   }
 }

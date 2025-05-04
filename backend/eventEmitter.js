@@ -1,4 +1,4 @@
-export class EventEmitter {
+export class EventEmiter {
   constructor() {
     /** @type {Map<string, Map<WebSocket, function(data)>>} */
     this.listeners = new Map();
@@ -24,5 +24,13 @@ export class EventEmitter {
     const sockets = this.listeners.get(eventName);
     if (!sockets.has(webSocket)) return;
     sockets.delete(webSocket);
+  }
+
+  cleanAll(webSocket) {
+    this.listeners.forEach((value, key) => {
+      if (value.has(webSocket)) {
+        value.delete(webSocket);
+      }
+    });
   }
 }

@@ -3,12 +3,11 @@ import {
   GAME_INITIAL_WAITING_TIME,
   MAX_ROOM_PLAYERS,
   ROOM_EVENTS,
-  ROOM_STATES,
+  SWITCH_EVENTS,
   WS_EVENETS,
 } from "./constante.js";
 import { PlayerSocket } from "./playerSocket.js";
-
-const { randomUUID } = require("crypto");
+import { randomUUID } from "crypto";
 
 class RoomIdle {
   /**
@@ -17,6 +16,7 @@ class RoomIdle {
    */
   constructor(room) {
     this.room = room;
+    this.room.isOpen = true;
   }
 
   enter() {
@@ -43,7 +43,16 @@ class RoomIdle {
     this.notifyNewPlayer(player);
   }
 
-  removePlayer() {}
+  removePlayer(player) {
+    const isPlayerExist = this.room.players.some((p) => p == player);
+    if (isPlayerExist) {
+      this.room.players = this.room.players.filter((p) => p != player);
+      console.log("here", this.room.players.length);
+      this.room.send(WS_EVENETS.PLAYER_LEAVE_ROOM, {
+        id: player.id,
+      });
+    }
+  }
 
   /**
    *
@@ -51,7 +60,9 @@ class RoomIdle {
    */
   notifyNewPlayer(player) {
     player.send(ROOM_EVENTS.IDLE, {
-      players: this.room.players.map((p) => ({ id: p.id, name: p.playerName })),
+      players: this.room.players.map((p) => {
+        return { id: p.id, name: p.playerName };
+      }),
     });
   }
 }
@@ -62,15 +73,16 @@ class RoomWait {
   }
 
   enter() {
-    this.time = GAME_INITIAL_WAITING_TIME;
+    this.room.time = GAME_INITIAL_WAITING_TIME;
+    this.room.isOpen = true;
     this.room.sendWaitStateEvent();
   }
 
   exit() {}
 
   update(dt) {
-    this.time -= dt;
-    if (this.room.player.length <= 1) {
+    this.room.time -= dt;
+    if (this.room.players.length <= 1) {
       this.room.setState(new RoomIdle(this.room));
       return;
     }
@@ -83,16 +95,28 @@ class RoomWait {
   addPlayer(player) {
     if (this.room.isFull()) throw new Error("room is Full");
     this.room.sendPlayerJoin(player);
+    player.roomId = this.room.id;
     this.room.players.push(player);
     this.notifyNewPlayer(player);
   }
 
-  removePlayer() {}
+  removePlayer(player) {
+    const isPlayerExist = this.room.players.some((p) => p == player);
+    if (isPlayerExist) {
+      this.room.players = this.room.players.filter((p) => p != player);
+      console.log("here", this.room.players.length);
+      this.room.send(WS_EVENETS.PLAYER_LEAVE_ROOM, {
+        id: player.id,
+      });
+    } else {
+      console.log("player not exist");
+    }
+  }
 
   notifyNewPlayer(player) {
     player.send(ROOM_EVENTS.WAIT, {
       players: this.room.players.map((p) => ({ id: p.id, name: p.playerName })),
-      time: this.time,
+      time: this.room.time,
     });
   }
 }
@@ -103,18 +127,20 @@ class RoomCountDown {
   }
 
   enter() {
-    this.time = GAME_INITIAL_COUNTDOWN_TIME;
+    this.room.time = GAME_INITIAL_COUNTDOWN_TIME;
+    this.room.isOpen = false;
     this.room.sendCountDownStateEvent();
   }
 
   exit() {}
 
   update(dt) {
-    this.time -= dt;
-    if (this.time <= 0) {
+    this.room.time -= dt;
+    if (this.room.time <= 0) {
       // start game
+      // console.log("game staart now");
     }
-    if (this.room.player.length <= 1) {
+    if (this.room.players.length <= 1) {
       this.room.setState(new RoomIdle(this.room));
       return;
     }
@@ -123,16 +149,27 @@ class RoomCountDown {
   addPlayer(player) {
     if (this.room.isFull()) throw new Error("room is Full");
     this.room.sendPlayerJoin(player);
+    player.roomId = this.room.id;
     this.room.players.push(player);
     this.notifyNewPlayer(player);
   }
 
-  removePlayer() {}
+  removePlayer(player) {
+    const isPlayerExist = this.room.players.some((p) => p == player);
+    if (isPlayerExist) {
+      this.room.players = this.room.players.filter((p) => p != player);
+      this.room.send(WS_EVENETS.PLAYER_LEAVE_ROOM, {
+        id: player.id,
+      });
+    } else {
+      console.log("player not exist");
+    }
+  }
 
   notifyNewPlayer(player) {
     player.send(ROOM_EVENTS.COUNTDOWN, {
       players: this.room.players.map((p) => ({ id: p.id, name: p.playerName })),
-      time: this.time,
+      time: this.room.time,
     });
   }
 }
@@ -143,7 +180,6 @@ export class Room {
     this.id = randomUUID();
     /** @type {PlayerSocket[]}  */
     this.players = [];
-    this.state = ROOM_STATES.IDLE;
     this.time = null;
     this.currentState = null;
     this.setState(new RoomIdle(this));
@@ -171,6 +207,10 @@ export class Room {
     this.currentState.addPlayer(player);
   }
 
+  removePlayer(player) {
+    this.currentState.removePlayer(player);
+  }
+
   send(eventType, data) {
     this.players.forEach((player) => {
       player.send(eventType, data);
@@ -178,17 +218,17 @@ export class Room {
   }
 
   sendWaitStateEvent() {
-    this.send(ROOM_STATES.WAIT, {
+    this.send(SWITCH_EVENTS.ROOM_WAIT, {
       time: this.time,
     });
   }
 
   sendIdleStateEvent() {
-    this.send(ROOM_STATES.WAIT, {});
+    this.send(SWITCH_EVENTS.ROOM_WAIT, {});
   }
 
   sendCountDownStateEvent() {
-    this.send(ROOM_STATES.WAIT, {
+    this.send(SWITCH_EVENTS.ROOM_COUNTDOWN, {
       time: this.time,
     });
   }

@@ -2,8 +2,6 @@ import { PLAYER_START_LIFES, PLAYER_START_SPEED } from "./constante.js";
 import { PlayerSocket } from "./playerSocket.js";
 import { PowerUps } from "./powersUp.js";
 
-const { randomUUID } = require("crypto");
-
 export class Player {
   /**
    *

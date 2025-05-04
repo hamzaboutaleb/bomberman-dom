@@ -1,8 +1,7 @@
-import { PLAYER_STATES, WS_EVENETS } from "./constante.js";
+import { WS_EVENETS } from "./constante.js";
 import { eventEmitter, roomManager } from "./server.js";
 import { isAlphanumeric } from "./utils.js";
-
-const { randomUUID } = require("crypto");
+import { randomUUID } from "crypto";
 // state desing pattern
 
 class PlayerSocketIdle {
@@ -11,11 +10,11 @@ class PlayerSocketIdle {
     this.player = player;
   }
 
-  entre() {
+  enter() {
     eventEmitter.on(
       WS_EVENETS.SET_NAME,
       this.player.ws,
-      this.OnSetName.bind(this.player)
+      this.OnSetName.bind(this)
     );
   }
 
@@ -25,7 +24,7 @@ class PlayerSocketIdle {
 
   OnSetName({ name }) {
     if (!name || !isAlphanumeric(name)) throw new Error("invalid name");
-    this.playerName = name;
+    this.player.playerName = name;
     //-------------- change state
     let room = roomManager.findOpenRoom();
     if (!room) room = roomManager.createNewRoom();
@@ -34,19 +33,19 @@ class PlayerSocketIdle {
 }
 
 class PlayerSocketQueue {
-  entre() {}
+  enter() {}
 
   exit() {}
 }
 
 class PlayerSocketGame {
-  entre() {}
+  enter() {}
 
   exit() {}
 }
 
 class PlayerSocketEnd {
-  entre() {}
+  enter() {}
 
   exit() {}
 }
@@ -62,17 +61,35 @@ export class PlayerSocket {
     this.roomId = null;
     this.playerId = null;
     this.playerName = null;
+    this.currentState = null;
+    this.setState(new PlayerSocketIdle(this));
   }
 
-  setupEventListeners() {}
+  setState(state) {
+    if (this.currentState) this.currentState.exit();
+    this.currentState = state;
+    this.currentState.enter();
+  }
+
+  clean() {
+    try {
+      const room = roomManager.getRoom(this.roomId);
+
+      if (room) {
+        console.log("yes");
+        room.removePlayer(this);
+        eventEmitter.cleanAll(this);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }
 
   OnSetName({ name }) {
     if (!name || !isAlphanumeric(name)) throw new Error("invalid name");
     if (this.state != PLAYER_STATES.ENTRY)
       throw new Error("not allowed to change name");
     this.playerName = name;
-    //-------------- change state
-    this.state = PLAYER_STATES.QUEUE;
     //-------------- get room
     let room = roomManager.findOpenRoom();
     if (!room) room = roomManager.createNewRoom();

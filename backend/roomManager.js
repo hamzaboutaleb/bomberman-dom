@@ -19,7 +19,7 @@ export class RoomManager {
 
   findOpenRoom() {
     for (let [id, room] of this.rooms) {
-      if (!room.isFull()) return room;
+      if (!room.isFull() && room.isOpen) return room;
     }
     return null;
   }
@@ -29,6 +29,8 @@ export class RoomManager {
   }
 
   update(dt) {
-    
+    for (let [id, room] of this.rooms) {
+      room.update(dt);
+    }
   }
 }
