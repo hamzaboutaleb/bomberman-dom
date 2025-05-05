@@ -12,6 +12,7 @@ export class EventEmiter {
   }
 
   emit(eventName, webSocket, data) {
+    console.log(eventName);
     if (!this.listeners.has(eventName)) throw new Error("event doesnt exists");
     const sockets = this.listeners.get(eventName);
     if (!sockets.has(webSocket)) throw new Error("socket doesnt exists");

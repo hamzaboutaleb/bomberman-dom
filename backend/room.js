@@ -6,8 +6,10 @@ import {
   SWITCH_EVENTS,
   WS_EVENETS,
 } from "./constante.js";
-import { PlayerSocket } from "./playerSocket.js";
+import { PlayerSocket, PlayerSocketGame } from "./playerSocket.js";
 import { randomUUID } from "crypto";
+import { generateBomberManMap } from "./utils.js";
+import { Game } from "./game.js";
 
 class RoomIdle {
   /**
@@ -136,12 +138,12 @@ class RoomCountDown {
 
   update(dt) {
     this.room.time -= dt;
-    if (this.room.time <= 0) {
-      // start game
-      // console.log("game staart now");
-    }
     if (this.room.players.length <= 1) {
       this.room.setState(new RoomIdle(this.room));
+      return;
+    }
+    if (this.room.time <= 0) {
+      this.room.setState(new RoomGame(this.room));
       return;
     }
   }
@@ -174,6 +176,34 @@ class RoomCountDown {
   }
 }
 
+class RoomGame {
+  constructor(room) {
+    this.room = room;
+  }
+  enter() {
+    this.room.sendGameStateEvent();
+    this.room.players.forEach((p) => {
+      p.setState(new PlayerSocketGame(p));
+    });
+  }
+
+  removePlayer(player) {
+    const isPlayerExist = this.room.players.some((p) => p == player);
+    if (isPlayerExist) {
+      this.room.players = this.room.players.filter((p) => p != player);
+      this.room.send(WS_EVENETS.PLAYER_LEAVE_ROOM, {
+        id: player.id,
+      });
+    } else {
+      console.log("player not exist");
+    }
+  }
+
+  exit() {}
+
+  update() {}
+}
+
 export class Room {
   id;
   constructor() {
@@ -181,6 +211,7 @@ export class Room {
     /** @type {PlayerSocket[]}  */
     this.players = [];
     this.time = null;
+    this.game = new Game(this);
     this.currentState = null;
     this.setState(new RoomIdle(this));
   }
@@ -224,13 +255,19 @@ export class Room {
   }
 
   sendIdleStateEvent() {
-    this.send(SWITCH_EVENTS.ROOM_WAIT, {});
+    this.send(SWITCH_EVENTS.ROOM_IDLE, {});
   }
 
   sendCountDownStateEvent() {
     this.send(SWITCH_EVENTS.ROOM_COUNTDOWN, {
       time: this.time,
     });
+  }
+
+  sendGameStateEvent() {
+    this.game.initGame(this.players);
+    const { objects } = this.game;
+    this.send(SWITCH_EVENTS.GAME, { objects });
   }
 
   sendPlayerJoin(player) {

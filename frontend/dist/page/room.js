@@ -1,10 +1,12 @@
 import { For } from "../../core/For.js";
 import { h } from "../../core/view.js";
+import { ws } from "../app.js";
+import { Chat } from "../components/chat.js";
+import { PLAYER_EVENTS } from "../constant.js";
 import { room } from "../state.js";
 export function RoomPage() {
   setInterval(() => {
     if (room.time.value != null) {
-      console.log(room.time.value);
       room.time.value -= 1;
     } else {
       room.time.value = null;
@@ -26,10 +28,7 @@ export function RoomPage() {
     class: "player-count"
   }, "Players:", " ", h("span", {
     id: "playerCount"
-  }, () => {
-    console.log(room.players.value);
-    return room.players.value.length;
-  })))), h("div", {
+  }, () => room.players.value.length)))), h("div", {
     class: "players-list"
   }, h("h2", null, "Players"), h(For, {
     each: room.players,
@@ -37,18 +36,5 @@ export function RoomPage() {
     container: h("ul", {
       id: "playersList"
     })
-  })), h("div", {
-    class: "chat-container"
-  }, h("div", {
-    class: "chat-messages",
-    id: "chatMessages"
-  }), h("div", {
-    class: "chat-input"
-  }, h("input", {
-    type: "text",
-    id: "messageInput",
-    placeholder: "Type your message..."
-  }), h("button", {
-    id: "sendMessage"
-  }, "Send")))));
+  })), h(Chat, null)));
 }

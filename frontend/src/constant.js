@@ -5,6 +5,7 @@ export const PLAYER_EVENTS = {
   QUEUE: "player:queue",
   GAME: "player:game",
   END: "player:end",
+  MESSAGE: "player:message",
 };
 
 export const WS_EVENETS = {
@@ -25,4 +26,15 @@ export const SWITCH_EVENTS = {
   ROOM_IDLE: "switch:room_idle",
   ROOM_WAIT: "switch:room_wait",
   ROOM_COUNTDOWN: "switch:room_countdown",
+  GAME: "switch:game",
+};
+
+export const GAME_EVENTS = {
+  LEFT: "game:left",
+  RIGHT: "game:right",
+  TOP: "game:top",
+  BOTTOM: "game:bottom",
+  BOMB: "game:bomb",
+  PLACE_BOMB: "game:place_bomb",
+  EXPLODE: "game:explode",
 };

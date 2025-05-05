@@ -1,16 +1,19 @@
 import { For } from "../../core/For.js";
 import { h } from "../../core/view.js";
+import { ws } from "../app.js";
+import { Chat } from "../components/chat.js";
+import { PLAYER_EVENTS } from "../constant.js";
 import { room } from "../state.js";
 
 export function RoomPage() {
   setInterval(() => {
     if (room.time.value != null) {
-      console.log(room.time.value);
       room.time.value -= 1;
     } else {
       room.time.value = null;
     }
   }, 1000);
+
   return (
     <div class="container">
       <div class="waiting-room">
@@ -30,12 +33,7 @@ export function RoomPage() {
             </div>
             <div class="player-count">
               Players:{" "}
-              <span id="playerCount">
-                {() => {
-                  console.log(room.players.value);
-                  return room.players.value.length;
-                }}
-              </span>
+              <span id="playerCount">{() => room.players.value.length}</span>
             </div>
           </div>
         </div>
@@ -49,17 +47,7 @@ export function RoomPage() {
           />
         </div>
 
-        <div class="chat-container">
-          <div class="chat-messages" id="chatMessages"></div>
-          <div class="chat-input">
-            <input
-              type="text"
-              id="messageInput"
-              placeholder="Type your message..."
-            />
-            <button id="sendMessage">Send</button>
-          </div>
-        </div>
+        <Chat />
       </div>
     </div>
   );
