@@ -1,4 +1,5 @@
 import {
+  GAME_EVENTS,
   GAME_INITIAL_COUNTDOWN_TIME,
   GAME_INITIAL_WAITING_TIME,
   MAX_ROOM_PLAYERS,
@@ -190,6 +191,13 @@ class RoomGame {
     if (isPlayerExist) {
       this.room.players = this.room.players.filter((p) => p != player);
       this.room.send(WS_EVENETS.PLAYER_LEAVE_ROOM, {
+        id: player.id,
+      });
+      this.room.game.deleteObject(player.playerId);
+      this.room.send(GAME_EVENTS.DELETE_OBJECT, {
+        ids: [player.playerId],
+      });
+      this.room.send(GAME_EVENTS.PLAYER_DIE, {
         id: player.id,
       });
     } else {

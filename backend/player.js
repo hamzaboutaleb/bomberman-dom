@@ -22,7 +22,7 @@ export class Player {
   }
 
   get speed() {
-    return Math.max(this._speed + this.powerups.speed, 1.5);
+    return Math.min(this._speed + this.powerups.speed, 1.5);
   }
 
   get range() {

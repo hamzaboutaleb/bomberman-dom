@@ -16,6 +16,7 @@ export class Game {
   constructor(room) {
     this.objects = [];
     this.room = room;
+    this.players = [];
   }
 
   initGame(players) {
@@ -34,12 +35,14 @@ export class Game {
         } else if (cell == 3) {
           if (playerIdx >= players.length) continue;
           obj = gameObject(r * 30, c * 30, 20, 20, "player");
+          this.players.push(players[playerIdx]);
           players[playerIdx++].playerId = obj.id;
         }
         this.objects.push(obj);
       }
     }
   }
+
 
   deleteObject(id) {
     const index = this.objects.findIndex((obj) => obj.id === id);

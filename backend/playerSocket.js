@@ -141,7 +141,11 @@ export class PlayerSocketGame {
         player.x + player.width > bomb.x &&
         player.y < bomb.y + bomb.height &&
         player.y + player.height > bomb.y;
-      if (!isColiding && bomb.onColision) {
+      if (
+        bomb.ownerId == this.player.playerId &&
+        !isColiding &&
+        bomb.onColision
+      ) {
         bomb.onColision = false;
       }
     }
@@ -154,7 +158,17 @@ export class PlayerSocketGame {
         player.y + player.height > other.y;
 
       if (isColiding) {
-        if (other.type == "bomb" && other.onColision) continue;
+        console.log(
+          "condition",
+          `-- ${JSON.stringify(player, 2, null)}--`,
+          other.type == "bomb" && other.onColision && other.ownerId == player.id
+        );
+        if (
+          other.type == "bomb" &&
+          other.onColision &&
+          other.ownerId == player.id
+        )
+          continue;
         if (this.collideWithPowerUp(other, room)) {
           continue;
         }
@@ -204,7 +218,7 @@ export class PlayerSocketGame {
         player.x + player.width > bomb.x &&
         player.y < bomb.y + bomb.height &&
         player.y + player.height > bomb.y;
-      if (!isColiding) {
+      if (bomb.ownerId == this.player.id && !isColiding && bomb.onColision) {
         bomb.onColision = false;
       }
     }
@@ -217,7 +231,12 @@ export class PlayerSocketGame {
         player.y + player.height > other.y;
 
       if (isColiding) {
-        if (other.type == "bomb" && other.onColision) continue;
+        if (
+          other.type == "bomb" &&
+          other.onColision &&
+          other.ownerId == player.id
+        )
+          continue;
         if (this.collideWithPowerUp(other, room)) {
           continue;
         }
@@ -265,10 +284,15 @@ export class PlayerSocketGame {
         player.x + player.width > bomb.x &&
         player.y < bomb.y + bomb.height &&
         player.y + player.height > bomb.y;
-      if (!isColiding && bomb.onColision) {
+      if (
+        bomb.ownerId == this.player.playerId &&
+        !isColiding &&
+        bomb.onColision
+      ) {
         bomb.onColision = false;
       }
     }
+
     for (const other of others) {
       const isColiding =
         player.x < other.x + other.width &&
@@ -277,7 +301,12 @@ export class PlayerSocketGame {
         player.y + player.height > other.y;
 
       if (isColiding) {
-        if (other.type == "bomb" && other.onColision) continue;
+        if (
+          other.type == "bomb" &&
+          other.onColision &&
+          other.ownerId == player.id
+        )
+          continue;
         if (this.collideWithPowerUp(other, room)) {
           continue;
         }
@@ -325,7 +354,11 @@ export class PlayerSocketGame {
         player.x + player.width > bomb.x &&
         player.y < bomb.y + bomb.height &&
         player.y + player.height > bomb.y;
-      if (!isColiding && bomb.onColision) {
+      if (
+        bomb.ownerId == this.player.playerId &&
+        !isColiding &&
+        bomb.onColision
+      ) {
         bomb.onColision = false;
       }
     }
@@ -337,7 +370,12 @@ export class PlayerSocketGame {
         player.y + player.height > other.y;
 
       if (isColiding) {
-        if (other.type == "bomb" && other.onColision) continue;
+        if (
+          other.type == "bomb" &&
+          other.onColision &&
+          other.ownerId == player.id
+        )
+          continue;
         if (this.collideWithPowerUp(other, room)) {
           continue;
         }
@@ -413,6 +451,7 @@ export class PlayerSocketGame {
       "bomb"
     );
     bomb.onColision = true;
+    bomb.ownerId = this.player.playerId;
     bomb.range = this.player.player.getBombRange();
     game.objects.push(bomb);
     this.player.player.currentBombs++;
@@ -478,6 +517,16 @@ export class PlayerSocketGame {
       this.player.player.currentBombs--;
       room.send(GAME_EVENTS.DELETE_OBJECT, { ids: [bomb.id] });
       room.game.deleteObject(bomb.id);
+      room.send(GAME_EVENTS.EXPLODE, {
+        positions: affectedPositions.map((pos) => ({
+          id: randomUUID(),
+          type: "explosion",
+          x: pos.x,
+          y: pos.y,
+          width: pos.width,
+          height: pos.height,
+        })),
+      });
       // game.objects.splice(bombIndex, 1);
     }, 2500);
   }

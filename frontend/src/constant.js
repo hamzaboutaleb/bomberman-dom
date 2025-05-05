@@ -1,4 +1,4 @@
-export const WS_URL = "ws://localhost:8080";
+export const WS_URL = "ws://10.1.7.1:8080";
 
 export const PLAYER_EVENTS = {
   ENTRY: "player:entry",

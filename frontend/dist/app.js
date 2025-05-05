@@ -190,6 +190,16 @@ ws.on(GAME_EVENTS.DELETE_OBJECT, ({
   console.log("delete object", ids);
   game.objects.value = game.objects.value.filter(p => !ids.includes(p.id));
 });
+ws.on(GAME_EVENTS.EXPLODE, ({
+  positions
+}) => {
+  game.objects.value = [...game.objects.value, ...positions];
+  const id = positions.map(p => p.id);
+  console.log("explode", positions);
+  setTimeout(() => {
+    game.objects.value = game.objects.value.filter(p => !id.includes(p.id));
+  }, 1000);
+});
 ws.onOpen = () => {
   console.log("welcome");
 };

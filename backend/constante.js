@@ -1,7 +1,7 @@
 export const MAX_ROOM_PLAYERS = 4;
 export const PLAYER_START_LIFES = 3;
-export const PLAYER_START_SPEED = 0.5;
-export const GAME_INITIAL_WAITING_TIME = 1;
+export const PLAYER_START_SPEED = 0.8;
+export const GAME_INITIAL_WAITING_TIME = 5;
 export const GAME_INITIAL_COUNTDOWN_TIME = 1;
 
 export const PLAYER_EVENTS = {
