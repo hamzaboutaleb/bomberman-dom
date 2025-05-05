@@ -259,8 +259,8 @@ button:hover {
   background-color: #2a2a2a;
   border-radius: 4px;
   transition: all 0.2s ease;
-  min-width: 30px;
-  min-height: 30px;
+  width: 30px;
+  height: 30px;
 }
 
 .map-cell.wall {
@@ -280,6 +280,8 @@ button:hover {
 .map-cell.player {
   background-color: var(--secondary-color);
   border-radius: 50%;
+  width: 20px;
+  height: 20px;
 }
 
 .map-cell.speed {

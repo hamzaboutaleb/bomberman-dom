@@ -33,7 +33,7 @@ export class Game {
           obj = gameObject(r * 30, c * 30, 30, 30, "block");
         } else if (cell == 3) {
           if (playerIdx >= players.length) continue;
-          obj = gameObject(r * 30, c * 30, 30, 30, "player");
+          obj = gameObject(r * 30, c * 30, 20, 20, "player");
           players[playerIdx++].playerId = obj.id;
         }
         this.objects.push(obj);

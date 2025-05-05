@@ -14,6 +14,9 @@ export function GamePage() {
   function onKeydown(e) {
     e.preventDefault();
     keys[e.key.toLowerCase()] = true;
+    if (e.key == " ") {
+      ws.emit(GAME_EVENTS.PLACE_BOMB);
+    }
   }
   function gameloop(t) {
     if (keys["d"]) {
@@ -27,9 +30,6 @@ export function GamePage() {
     }
     if (keys["s"]) {
       ws.emit(GAME_EVENTS.BOTTOM);
-    }
-    if (keys[" "]) {
-      ws.emit(GAME_EVENTS.PLACE_BOMB);
     }
     requestAnimationFrame(gameloop);
   }

@@ -155,6 +155,9 @@ export class PlayerSocketGame {
 
       if (isColiding) {
         if (other.type == "bomb" && other.onColision) continue;
+        if (this.collideWithPowerUp(other, room)) {
+          continue;
+        }
         player.y -= this.player.player.speed;
         isMoved = false;
         break;
@@ -215,37 +218,7 @@ export class PlayerSocketGame {
 
       if (isColiding) {
         if (other.type == "bomb" && other.onColision) continue;
-        if (other.type == "speed") {
-          this.player.player.powerups.speed += 1;
-          room.send(GAME_EVENTS.DELETE_OBJECT, {
-            ids: [other.id],
-          });
-          this.player.sendPlayerState();
-          room.game.deleteObject(other.id);
-          continue;
-        } else if (other.type == "bombs") {
-          this.player.player.powerups.bombs += 1;
-          room.send(GAME_EVENTS.DELETE_OBJECT, {
-            ids: [other.id],
-          });
-          this.player.sendPlayerState();
-          room.game.deleteObject(other.id);
-          continue;
-        } else if (other.type == "life") {
-          this.player.player.life += 1;
-          room.send(GAME_EVENTS.DELETE_OBJECT, {
-            ids: [other.id],
-          });
-          room.game.deleteObject(other.id);
-          this.player.sendPlayerState();
-          continue;
-        } else if (other.type == "bombRange") {
-          this.player.player.powerups.flames += 1;
-          room.send(GAME_EVENTS.DELETE_OBJECT, {
-            ids: [other.id],
-          });
-          room.game.deleteObject(other.id);
-          this.player.sendPlayerState();
+        if (this.collideWithPowerUp(other, room)) {
           continue;
         }
         player.y += this.player.player.speed;
@@ -305,37 +278,7 @@ export class PlayerSocketGame {
 
       if (isColiding) {
         if (other.type == "bomb" && other.onColision) continue;
-        if (other.type == "speed") {
-          this.player.player.speed += 1;
-          room.send(GAME_EVENTS.DELETE_OBJECT, {
-            ids: [other.id],
-          });
-          room.game.deleteObject(other.id);
-          this.player.sendPlayerState();
-          continue;
-        } else if (other.type == "bombs") {
-          this.player.player.bombs += 1;
-          room.send(GAME_EVENTS.DELETE_OBJECT, {
-            ids: [other.id],
-          });
-          room.game.deleteObject(other.id);
-          this.player.sendPlayerState();
-          continue;
-        } else if (other.type == "life") {
-          this.player.player.life += 1;
-          room.send(GAME_EVENTS.DELETE_OBJECT, {
-            ids: [other.id],
-          });
-          room.game.deleteObject(other.id);
-          this.player.sendPlayerState();
-          continue;
-        } else if (other.type == "bombRange") {
-          this.player.player.bombRange += 1;
-          room.send(GAME_EVENTS.DELETE_OBJECT, {
-            ids: [other.id],
-          });
-          room.game.deleteObject(other.id);
-          this.player.sendPlayerState();
+        if (this.collideWithPowerUp(other, room)) {
           continue;
         }
         player.x += this.player.player.speed;
@@ -395,38 +338,7 @@ export class PlayerSocketGame {
 
       if (isColiding) {
         if (other.type == "bomb" && other.onColision) continue;
-        console.log("other type", other.type);
-        if (other.type == "speed") {
-          this.player.player.speed += 1;
-          room.send(GAME_EVENTS.DELETE_OBJECT, {
-            ids: [other.id],
-          });
-          room.game.deleteObject(other.id);
-          this.player.sendPlayerState();
-          continue;
-        } else if (other.type == "bombs") {
-          this.player.player.bombs += 1;
-          room.send(GAME_EVENTS.DELETE_OBJECT, {
-            ids: [other.id],
-          });
-          room.game.deleteObject(other.id);
-          this.player.sendPlayerState();
-          continue;
-        } else if (other.type == "life") {
-          this.player.player.life += 1;
-          room.send(GAME_EVENTS.DELETE_OBJECT, {
-            ids: [other.id],
-          });
-          room.game.deleteObject(other.id);
-          this.player.sendPlayerState();
-          continue;
-        } else if (other.type == "bombRange") {
-          this.player.player.bombRange += 1;
-          room.send(GAME_EVENTS.DELETE_OBJECT, {
-            ids: [other.id],
-          });
-          room.game.deleteObject(other.id);
-          this.player.sendPlayerState();
+        if (this.collideWithPowerUp(other, room)) {
           continue;
         }
         player.x -= this.player.player.speed;
@@ -441,6 +353,44 @@ export class PlayerSocketGame {
         y: player.y,
       });
     }
+  }
+
+  collideWithPowerUp(other, room) {
+    if (other.type == "speed") {
+      this.player.player.powerups.speed += other.value;
+      room.send(GAME_EVENTS.DELETE_OBJECT, {
+        ids: [other.id],
+      });
+      this.player.sendPlayerState();
+      room.game.deleteObject(other.id);
+      return true;
+    } else if (other.type == "bombs") {
+      this.player.player.powerups.bombs += other.value;
+      room.send(GAME_EVENTS.DELETE_OBJECT, {
+        ids: [other.id],
+      });
+      this.player.sendPlayerState();
+      room.game.deleteObject(other.id);
+      return true;
+    } else if (other.type == "life") {
+      this.player.player.life += other.value;
+      room.send(GAME_EVENTS.DELETE_OBJECT, {
+        ids: [other.id],
+      });
+      room.game.deleteObject(other.id);
+      this.player.sendPlayerState();
+      return true;
+    } else if (other.type == "bombRange") {
+      this.player.player.powerups.flames += other.value;
+      room.send(GAME_EVENTS.DELETE_OBJECT, {
+        ids: [other.id],
+      });
+      room.game.deleteObject(other.id);
+      this.player.sendPlayerState();
+      return true;
+    }
+
+    return false;
   }
 
   onPlaceBomb() {
@@ -529,7 +479,7 @@ export class PlayerSocketGame {
       room.send(GAME_EVENTS.DELETE_OBJECT, { ids: [bomb.id] });
       room.game.deleteObject(bomb.id);
       // game.objects.splice(bombIndex, 1);
-    }, 1000);
+    }, 2500);
   }
 
   onMessage(data) {

@@ -22,7 +22,7 @@ export class Player {
   }
 
   get speed() {
-    return this._speed + this.powerups.speed;
+    return Math.max(this._speed + this.powerups.speed, 1.5);
   }
 
   get range() {
@@ -40,10 +40,6 @@ export class Player {
   set speed(value) {
     this.powerups.speed = value;
   }
-
-  
-
-
 
   getBombRange() {
     return this.powerups.flames;

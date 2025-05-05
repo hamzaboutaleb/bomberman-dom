@@ -4,4 +4,6 @@ export class PowerUps {
     this.bombs = 1;
     this.flames = 1;
   }
+
+
 }

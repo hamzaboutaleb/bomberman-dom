@@ -66,10 +66,9 @@ export function randomPowerUp(x, y, width, height) {
   const id = randomUUID();
   const powerUps = [
     { id, type: "bombs", value: 1, x, y, width, height },
-    { id, type: "speed", value: 1, x, y, width, height },
+    { id, type: "speed", value: 0.2, x, y, width, height },
     { id, type: "bombRange", value: 1, x, y, width, height },
     { id, type: "life", value: 1, x, y, width, height },
   ];
-  // Math.floor(Math.random() * powerUps.length)
   return powerUps[Math.floor(Math.random() * powerUps.length)];
 }
