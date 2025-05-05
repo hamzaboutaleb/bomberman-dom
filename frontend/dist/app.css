@@ -282,6 +282,26 @@ button:hover {
   border-radius: 50%;
 }
 
+.map-cell.speed {
+  background-color: blue;
+  border-radius: 50%;
+}
+
+.map-cell.bombs {
+  background-color: rgb(103, 22, 141);
+  border-radius: 50%;
+}
+
+.map-cell.bombRange {
+  background-color: yellow;
+  border-radius: 50%;
+}
+
+.map-cell.life {
+  background-color: rgb(235, 65, 65);
+  animation: explode 0.5s forwards;
+}
+
 .map-cell.explosion {
   background-color: var(--accent-color);
   animation: flash 0.5s infinite;

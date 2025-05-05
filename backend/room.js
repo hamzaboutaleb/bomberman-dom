@@ -49,7 +49,6 @@ class RoomIdle {
     const isPlayerExist = this.room.players.some((p) => p == player);
     if (isPlayerExist) {
       this.room.players = this.room.players.filter((p) => p != player);
-      console.log("here", this.room.players.length);
       this.room.send(WS_EVENETS.PLAYER_LEAVE_ROOM, {
         id: player.id,
       });
@@ -106,7 +105,6 @@ class RoomWait {
     const isPlayerExist = this.room.players.some((p) => p == player);
     if (isPlayerExist) {
       this.room.players = this.room.players.filter((p) => p != player);
-      console.log("here", this.room.players.length);
       this.room.send(WS_EVENETS.PLAYER_LEAVE_ROOM, {
         id: player.id,
       });
@@ -240,6 +238,10 @@ export class Room {
 
   removePlayer(player) {
     this.currentState.removePlayer(player);
+  }
+
+  getPlayerById(id) {
+    return this.players.find((p) => p.playerId == id);
   }
 
   send(eventType, data) {

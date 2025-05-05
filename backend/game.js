@@ -34,12 +34,22 @@ export class Game {
         } else if (cell == 3) {
           if (playerIdx >= players.length) continue;
           obj = gameObject(r * 30, c * 30, 30, 30, "player");
-          console.log(players[playerIdx], playerIdx);
           players[playerIdx++].playerId = obj.id;
         }
         this.objects.push(obj);
       }
     }
+  }
+
+  deleteObject(id) {
+    const index = this.objects.findIndex((obj) => obj.id === id);
+    if (index !== -1) {
+      this.objects.splice(index, 1);
+    }
+  }
+
+  addObject(o) {
+    this.objects.push(o);
   }
 
   update() {}

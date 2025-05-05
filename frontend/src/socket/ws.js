@@ -33,10 +33,10 @@ export class WS {
     this.ws.onmessage = (ev) => {
       try {
         const { type, ...data } = JSON.parse(ev.data);
+        console.log("type", type);
         if (type) {
           const listeners = this.listeners.get(type);
-          console.log(type, this.listeners);
-          if (!listeners) throw new Error("event handle doesnt exist")
+          if (!listeners) throw new Error("event handle doesnt exist");
           listeners.forEach((listener) => {
             listener(data);
           });

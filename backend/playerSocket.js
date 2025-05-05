@@ -2,7 +2,7 @@ import { GAME_EVENTS, PLAYER_EVENTS, WS_EVENETS } from "./constante.js";
 import { gameObject } from "./game.js";
 import { Player } from "./player.js";
 import { eventEmitter, roomManager } from "./server.js";
-import { isAlphanumeric } from "./utils.js";
+import { isAlphanumeric, isCollision, randomPowerUp } from "./utils.js";
 import { randomUUID } from "crypto";
 // state desing pattern
 
@@ -41,6 +41,7 @@ class PlayerSocketRoom {
   }
 
   enter() {
+    this.player.sendPlayerState();
     eventEmitter.on(
       PLAYER_EVENTS.MESSAGE,
       this.player.ws,
@@ -166,8 +167,6 @@ export class PlayerSocketGame {
         y: player.y,
       });
     }
-
-    console.log(this.player.playerId);
   }
 
   onMoveTop() {
@@ -216,12 +215,44 @@ export class PlayerSocketGame {
 
       if (isColiding) {
         if (other.type == "bomb" && other.onColision) continue;
+        if (other.type == "speed") {
+          this.player.player.powerups.speed += 1;
+          room.send(GAME_EVENTS.DELETE_OBJECT, {
+            ids: [other.id],
+          });
+          this.player.sendPlayerState();
+          room.game.deleteObject(other.id);
+          continue;
+        } else if (other.type == "bombs") {
+          this.player.player.powerups.bombs += 1;
+          room.send(GAME_EVENTS.DELETE_OBJECT, {
+            ids: [other.id],
+          });
+          this.player.sendPlayerState();
+          room.game.deleteObject(other.id);
+          continue;
+        } else if (other.type == "life") {
+          this.player.player.life += 1;
+          room.send(GAME_EVENTS.DELETE_OBJECT, {
+            ids: [other.id],
+          });
+          room.game.deleteObject(other.id);
+          this.player.sendPlayerState();
+          continue;
+        } else if (other.type == "bombRange") {
+          this.player.player.powerups.flames += 1;
+          room.send(GAME_EVENTS.DELETE_OBJECT, {
+            ids: [other.id],
+          });
+          room.game.deleteObject(other.id);
+          this.player.sendPlayerState();
+          continue;
+        }
         player.y += this.player.player.speed;
         isMoved = false;
         break;
       }
     }
-    console.log(player.x, player.y);
     if (isMoved) {
       room.send(GAME_EVENTS.BOTTOM, {
         id: this.player.playerId,
@@ -229,8 +260,6 @@ export class PlayerSocketGame {
         y: player.y,
       });
     }
-
-    console.log(this.player.playerId);
   }
 
   onMoveLeft() {
@@ -276,12 +305,44 @@ export class PlayerSocketGame {
 
       if (isColiding) {
         if (other.type == "bomb" && other.onColision) continue;
+        if (other.type == "speed") {
+          this.player.player.speed += 1;
+          room.send(GAME_EVENTS.DELETE_OBJECT, {
+            ids: [other.id],
+          });
+          room.game.deleteObject(other.id);
+          this.player.sendPlayerState();
+          continue;
+        } else if (other.type == "bombs") {
+          this.player.player.bombs += 1;
+          room.send(GAME_EVENTS.DELETE_OBJECT, {
+            ids: [other.id],
+          });
+          room.game.deleteObject(other.id);
+          this.player.sendPlayerState();
+          continue;
+        } else if (other.type == "life") {
+          this.player.player.life += 1;
+          room.send(GAME_EVENTS.DELETE_OBJECT, {
+            ids: [other.id],
+          });
+          room.game.deleteObject(other.id);
+          this.player.sendPlayerState();
+          continue;
+        } else if (other.type == "bombRange") {
+          this.player.player.bombRange += 1;
+          room.send(GAME_EVENTS.DELETE_OBJECT, {
+            ids: [other.id],
+          });
+          room.game.deleteObject(other.id);
+          this.player.sendPlayerState();
+          continue;
+        }
         player.x += this.player.player.speed;
         isMoved = false;
         break;
       }
     }
-    console.log(player.x, player.y);
     if (isMoved) {
       room.send(GAME_EVENTS.LEFT, {
         id: this.player.playerId,
@@ -289,7 +350,6 @@ export class PlayerSocketGame {
         y: player.y,
       });
     }
-    console.log(this.player.playerId);
   }
 
   onMoveRight() {
@@ -335,12 +395,45 @@ export class PlayerSocketGame {
 
       if (isColiding) {
         if (other.type == "bomb" && other.onColision) continue;
+        console.log("other type", other.type);
+        if (other.type == "speed") {
+          this.player.player.speed += 1;
+          room.send(GAME_EVENTS.DELETE_OBJECT, {
+            ids: [other.id],
+          });
+          room.game.deleteObject(other.id);
+          this.player.sendPlayerState();
+          continue;
+        } else if (other.type == "bombs") {
+          this.player.player.bombs += 1;
+          room.send(GAME_EVENTS.DELETE_OBJECT, {
+            ids: [other.id],
+          });
+          room.game.deleteObject(other.id);
+          this.player.sendPlayerState();
+          continue;
+        } else if (other.type == "life") {
+          this.player.player.life += 1;
+          room.send(GAME_EVENTS.DELETE_OBJECT, {
+            ids: [other.id],
+          });
+          room.game.deleteObject(other.id);
+          this.player.sendPlayerState();
+          continue;
+        } else if (other.type == "bombRange") {
+          this.player.player.bombRange += 1;
+          room.send(GAME_EVENTS.DELETE_OBJECT, {
+            ids: [other.id],
+          });
+          room.game.deleteObject(other.id);
+          this.player.sendPlayerState();
+          continue;
+        }
         player.x -= this.player.player.speed;
         isMoved = false;
         break;
       }
     }
-    console.log(player.x, player.y);
     if (isMoved) {
       room.send(GAME_EVENTS.RIGHT, {
         id: this.player.playerId,
@@ -351,6 +444,10 @@ export class PlayerSocketGame {
   }
 
   onPlaceBomb() {
+    if (!this.player.player.canPutBomb()) {
+      console.log("you can't put bomb");
+      return;
+    }
     const room = roomManager.getRoom(this.player.roomId);
     const game = room.game;
     const playerIndex = game.objects.findIndex(
@@ -365,9 +462,74 @@ export class PlayerSocketGame {
       30,
       "bomb"
     );
-    game.objects.push(bomb);
-    room.send(GAME_EVENTS.PLACE_BOMB, { bomb });
     bomb.onColision = true;
+    bomb.range = this.player.player.getBombRange();
+    game.objects.push(bomb);
+    this.player.player.currentBombs++;
+    room.send(GAME_EVENTS.PLACE_BOMB, { bomb });
+
+    setTimeout(() => {
+      const directions = [
+        { dx: 0, dy: -1 }, // up
+        { dx: 0, dy: 1 }, // down
+        { dx: -1, dy: 0 }, // left
+        { dx: 1, dy: 0 }, // right
+      ];
+      const affectedPositions = [
+        { x: bomb.x, y: bomb.y, width: 30, height: 30 },
+      ];
+      for (const { dx, dy } of directions) {
+        for (let i = 1; i <= bomb.range; i++) {
+          const x = bomb.x + dx * i * 30;
+          const y = bomb.y + dy * i * 30;
+          if (x < 0 || x >= 600 || y < 0 || y >= 600) {
+            break;
+          }
+          const wall = game.objects.find((w) => w.x == x && w.y == y);
+          if (wall && wall.type == "wall") {
+            break;
+          }
+          affectedPositions.push({ x, y, width: 30, height: 30 });
+          if (wall && wall.type == "block") break;
+        }
+      }
+      const objects = game.objects.filter((obj) => obj.type != "bomb");
+      for (const pos of affectedPositions) {
+        for (const obj of objects) {
+          if (isCollision(obj, pos)) {
+            if (obj.type == "player") {
+              const player = room.getPlayerById(obj.id);
+              player.player.life--;
+              if (player.player.life <= 0) {
+                room.send(GAME_EVENTS.PLAYER_DIE, {
+                  id: obj.id,
+                  life: player.player.life,
+                });
+                player.sendPlayerState();
+                room.game.deleteObject(obj.id);
+              } else {
+                player.send(GAME_EVENTS.PLAYER_HIT, {
+                  life: player.player.life,
+                });
+              }
+            } else if (obj.type == "block") {
+              game.objects = game.objects.filter((o) => o.id != obj.id);
+              room.send(GAME_EVENTS.DELETE_OBJECT, { ids: [obj.id] });
+              if (Math.random() < 0.5) {
+                const powerUp = randomPowerUp(obj.x, obj.y, 30, 30);
+                room.send(GAME_EVENTS.ADD_OBJECT, { objects: [powerUp] });
+                room.game.objects.push(powerUp);
+              }
+            }
+          }
+        }
+      }
+
+      this.player.player.currentBombs--;
+      room.send(GAME_EVENTS.DELETE_OBJECT, { ids: [bomb.id] });
+      room.game.deleteObject(bomb.id);
+      // game.objects.splice(bombIndex, 1);
+    }, 1000);
   }
 
   onMessage(data) {
@@ -437,5 +599,15 @@ export class PlayerSocket {
       ...data,
     };
     this.ws.send(JSON.stringify(request));
+  }
+
+  sendPlayerState() {
+    this.send(GAME_EVENTS.PLAYER_STATE, {
+      playerName: this.playerName,
+      life: this.player.life,
+      speed: this.player.speed,
+      bombs: this.player.powerups.bombs,
+      bombRange: this.player.powerups.flames,
+    });
   }
 }

@@ -9,5 +9,12 @@ export const room = reactive({
 
 export const game = reactive({
   objects: [],
-  players: []
+  life: 3,
+  playerName: "",
+  life: 3,
+
+  speed: 1,
+  bombs: 1,
+  bombRange: 1,
+  maxBombs: 1,
 });

@@ -37,4 +37,10 @@ export const GAME_EVENTS = {
   BOMB: "game:bomb",
   PLACE_BOMB: "game:place_bomb",
   EXPLODE: "game:explode",
+  BLOCK_DESTROYED: "game:block_destroyed",
+  PLAYER_DIE: "game:player_die",
+  PLAYER_HIT: "game:player_hit",
+  DELETE_OBJECT: "game:delete_object",
+  ADD_OBJECT: "game:add_object",
+  PLAYER_STATE: "game:player_state",
 };

@@ -72,11 +72,6 @@ ws.on(WS_EVENETS.PLAYER_LEAVE_ROOM, ({ id }) => {
 });
 
 ws.on(SWITCH_EVENTS.GAME, ({ objects }) => {
-  // const newMap =
-  //   map.map((cell, key) => {
-  //     return { key };
-  //   }) || [];
-  // console.log(newMap);
   game.objects.value = objects;
   router.navigate("/game");
 });
@@ -121,13 +116,43 @@ ws.on(GAME_EVENTS.RIGHT, ({ id, x, y }) => {
   });
 });
 
+ws.on(GAME_EVENTS.PLAYER_DIE, ({ id, life }) => {
+  game.objects.value = game.objects.value.filter((p) => p.id != id);
+});
+
+ws.on(GAME_EVENTS.PLAYER_HIT, ({ life }) => {
+  console.log("player hit", life);
+  game.life.value = life;
+});
+
 ws.on(GAME_EVENTS.PLACE_BOMB, ({ bomb }) => {
   console.log("bomb test", bomb);
   game.objects.value = [bomb, ...game.objects.value];
 });
 
+ws.on(
+  GAME_EVENTS.PLAYER_STATE,
+  ({ playerName, life, speed, bombs, bombRange }) => {
+    game.playerName.value = playerName;
+    game.life.value = life;
+    game.speed.value = speed;
+    game.bombs.value = bombs;
+    game.bombRange.value = bombRange;
+  }
+);
+
 ws.on(PLAYER_EVENTS.MESSAGE, ({ name, message }) => {
   room.messages.value = [...room.messages.value, { name, message }];
+});
+
+ws.on(GAME_EVENTS.ADD_OBJECT, ({ objects }) => {
+  console.log("add object", objects);
+  game.objects.value = [...objects, ...game.objects.value];
+});
+
+ws.on(GAME_EVENTS.DELETE_OBJECT, ({ ids }) => {
+  console.log("delete object", ids);
+  game.objects.value = game.objects.value.filter((p) => !ids.includes(p.id));
 });
 
 ws.onOpen = () => {

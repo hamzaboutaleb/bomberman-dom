@@ -1,4 +1,5 @@
 import { Room } from "./room.js";
+import { randomUUID } from "crypto";
 
 export function isAlphanumeric(str) {
   return /^[a-zA-Z0-9]+$/.test(str);
@@ -28,7 +29,7 @@ export function generateBomberManMap(rows = 10, cols = 10) {
       if (!isCorner && Math.random() > 0.3) {
         map[i][j] = 2;
       } else {
-        map[i][j] = 0
+        map[i][j] = 0;
       }
     }
   }
@@ -50,4 +51,25 @@ export function generateBomberManMap(rows = 10, cols = 10) {
   map[rows - 2][cols - 1] = 0;
 
   return map;
+}
+
+export function isCollision(obj1, obj2) {
+  return (
+    obj1.x < obj2.x + obj2.width &&
+    obj1.x + obj1.width > obj2.x &&
+    obj1.y < obj2.y + obj2.height &&
+    obj1.y + obj1.height > obj2.y
+  );
+}
+
+export function randomPowerUp(x, y, width, height) {
+  const id = randomUUID();
+  const powerUps = [
+    { id, type: "bombs", value: 1, x, y, width, height },
+    { id, type: "speed", value: 1, x, y, width, height },
+    { id, type: "bombRange", value: 1, x, y, width, height },
+    { id, type: "life", value: 1, x, y, width, height },
+  ];
+  // Math.floor(Math.random() * powerUps.length)
+  return powerUps[Math.floor(Math.random() * powerUps.length)];
 }

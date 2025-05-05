@@ -1,6 +1,6 @@
 export const MAX_ROOM_PLAYERS = 4;
 export const PLAYER_START_LIFES = 3;
-export const PLAYER_START_SPEED = 10;
+export const PLAYER_START_SPEED = 2;
 export const GAME_INITIAL_WAITING_TIME = 1;
 export const GAME_INITIAL_COUNTDOWN_TIME = 1;
 
@@ -40,4 +40,10 @@ export const GAME_EVENTS = {
   BOTTOM: "game:bottom",
   PLACE_BOMB: "game:place_bomb",
   EXPLODE: "game:explode",
+  BLOCK_DESTROYED: "game:block_destroyed",
+  PLAYER_DIE: "game:player_die",
+  PLAYER_HIT: "game:player_hit",
+  DELETE_OBJECT: "game:delete_object",
+  ADD_OBJECT: "game:add_object",
+  PLAYER_STATE: "game:player_state",
 };
