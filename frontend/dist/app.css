@@ -256,11 +256,13 @@ button:hover {
 .map-cell {
   position: absolute;
   aspect-ratio: 1;
-  background-color: #2a2a2a;
   border-radius: 4px;
   transition: all 0.2s ease;
   width: 30px;
   height: 30px;
+}
+.map-cell.block {
+  background-color: #2a2a2a;
 }
 
 .map-cell.wall {
@@ -285,23 +287,35 @@ button:hover {
 }
 
 .map-cell.speed {
-  background-color: blue;
   border-radius: 50%;
+  background-image: url("./img/thunder.png");
+  width: 30px;
+  height: 30px;
+  background-size: 30px 30px;
 }
 
 .map-cell.bombs {
-  background-color: rgb(103, 22, 141);
   border-radius: 50%;
+  background-image: url("./img/bomb.png");
+  width: 30px;
+  height: 30px;
+  background-size: 30px 30px;
 }
 
 .map-cell.bombRange {
-  background-color: yellow;
   border-radius: 50%;
+  background-image: url("./img/fire.png");
+  width: 30px;
+  height: 30px;
+  background-size: 30px 30px;
 }
 
 .map-cell.life {
-  background-color: rgb(235, 65, 65);
   animation: explode 0.5s forwards;
+  background-image: url("./img/heart.png");
+  width: 30px;
+  height: 30px;
+  background-size: 30px 30px;
 }
 
 .map-cell.explosion {
